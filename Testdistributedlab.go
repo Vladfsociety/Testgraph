@@ -2,9 +2,9 @@ package main
 
 import (
   "encoding/xml"
-	"fmt"
-	"io/ioutil"
-	"os"
+  "fmt"
+  "io/ioutil"
+  "os"
   "strconv"
 )
 
@@ -12,11 +12,61 @@ const (
   maxPrice = 10000.0
 )
 
-func ShortestWayDijkstraPrice(initialMatrixPrice [][]float32, minPrice []float32, visitedPoint []int, uniqueStation []string) {
-
+func showSlice(ourSlice [][]float32) { // Более наглядно выводит массив
+  for i, _ := range ourSlice {
+    for j, _ := range ourSlice {
+      fmt.Printf("%v ", ourSlice[i][j])
+    }
+    fmt.Println("\n")
+  }
 }
 
-func InitialPrice(trainLegs TrainLegs) ([][]float32, []float32, []int, []string) {
+func NewIter(minPrice []float32, visitedPoint []int) { // Задает необходимые, для дальнейших вычислений, значение массива мин. цен и посещенных станций
+  for i, _ := range minPrice {
+    minPrice[i] = maxPrice
+    visitedPoint[i] = 1
+  }
+}
+
+func AllShortestWayDijkstraPrice(resultInitialMatrixPrice [][]float32, initialMatrixPrice [][]float32, minPrice []float32, visitedPoint []int) { // Находит наиболее дешевый проезд между каждой парой станций
+  for i, _ := range minPrice {
+    ShortestWayDijkstraPrice(initialMatrixPrice, minPrice, visitedPoint, i)
+    for j, _ := range minPrice {
+       resultInitialMatrixPrice[i][j] = minPrice[j]
+    }
+    NewIter(minPrice, visitedPoint)
+  }
+}
+
+func ShortestWayDijkstraPrice(initialMatrixPrice [][]float32, minPrice []float32, visitedPoint []int, stationindex int) { // Находит для станции под индексом stationindex кратчайший путь до всех остальных станций исользуя алгоритм дейкстры
+  minPrice[stationindex] = 0
+  var minIndex int
+  var min float32
+  var temp float32
+  for minIndex < 10000 {
+    minIndex = 10000
+    min = maxPrice
+    for i, _ := range minPrice {
+      if visitedPoint[i] == 1 && minPrice[i] < maxPrice {
+        min = minPrice[i]
+        minIndex = i;
+      }
+    }
+    if minIndex != 10000 {
+      for i, _ := range initialMatrixPrice {
+        if initialMatrixPrice[minIndex][i] > 0.0 {
+          temp = min + initialMatrixPrice[minIndex][i]
+          if temp < minPrice[i] {
+            minPrice[i] = temp
+          }
+        }
+      }
+      visitedPoint[minIndex] = 0
+    }
+  }
+}
+
+func InitialPrice(trainLegs TrainLegs) ([][]float32, [][]float32, []float32, []int, []string) { // На основе имеющейся информации создает и возвращает матрицы связей, мин. цены, пройденных пунктов, и уникальных имен пунктов
   uniqueStation := make([]string, 0)
   uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[0].DepartureStationId)
   uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[0].ArrivalStationId)
@@ -42,10 +92,14 @@ func InitialPrice(trainLegs TrainLegs) ([][]float32, []float32, []int, []string)
     }
   }
   initialMatrixPrice := make([][]float32, len(uniqueStation))
+  resultInitialMatrixPrice := make([][]float32, len(uniqueStation))
   for i, _ := range initialMatrixPrice {
     initialMatrixPrice[i] = make([]float32, len(uniqueStation))
+    resultInitialMatrixPrice[i] = make([]float32, len(uniqueStation))
     for j, _ := range initialMatrixPrice[i] {
       initialMatrixPrice[i][j] = maxPrice
+      resultInitialMatrixPrice[i][j] = 0.0
+      if i == j { initialMatrixPrice[i][j] = 0.0 }
     }
   }
   for i := 0; i < len(trainLegs.TrainLegsSlice); i++ {
@@ -58,19 +112,9 @@ func InitialPrice(trainLegs TrainLegs) ([][]float32, []float32, []int, []string)
       }
     }
   }
-  for i, _ := range initialMatrixPrice {
-    for j, _ := range initialMatrixPrice {
-      fmt.Printf("%v ", initialMatrixPrice[i][j])
-    }
-    fmt.Println("\n")
-  }
   minPrice := make([]float32, len(uniqueStation))
   visitedPoint := make([]int, len(uniqueStation))
-  for i, _ := range uniqueStation {
-    minPrice[i] = maxPrice
-    visitedPoint[i] = 1
-  }
-  return initialMatrixPrice, minPrice, visitedPoint, uniqueStation
+  NewIter(minPrice, visitedPoint)
 }
 
 func ParseXML(fileName string) TrainLegs {
@@ -113,69 +157,15 @@ func main() {
   trainLegs = ParseXML(fileName) // Считывает название файла и возвращает структуру, в которой записана необходимая информация
   var uniqueStation []string
   var initialMatrixPrice [][]float32
+  var resultInitialMatrixPrice [][]float32
   var minPrice []float32
   var visitedPoint []int
-  initialMatrixPrice, minPrice, visitedPoint, uniqueStation = InitialPrice(trainLegs) // На основе имеющейся информации создает и возвращает матрицы связей, мин. цены, пройденных пунктов, и уникальных имен пунктов
-  /*uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[0].DepartureStationId)
-  uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[0].ArrivalStationId)
-  inside1 := true
-  inside2 := true
-  for i := 0; i < len(trainLegs.TrainLegsSlice); i++ {
-    fmt.Println("TrainLeg TrainId: " + trainLegs.TrainLegsSlice[i].TrainId)
-    fmt.Println("TrainLeg DepartureStationId: " + trainLegs.TrainLegsSlice[i].DepartureStationId)
-    fmt.Println("TrainLeg ArrivalStationId: " + trainLegs.TrainLegsSlice[i].ArrivalStationId)
-    fmt.Println("TrainLeg Price: " + trainLegs.TrainLegsSlice[i].Price)
-    fmt.Println("TrainLeg ArrivalTimeString: " + trainLegs.TrainLegsSlice[i].ArrivalTimeString)
-    fmt.Println("TrainLeg DepartureTimeString: " + trainLegs.TrainLegsSlice[i].DepartureTimeString)
-  }
-
-  for i := 1; i < len(trainLegs.TrainLegsSlice); i++ {
-    inside1 = false
-    inside2 = false
-    for j := 0; j < len(uniqueStation); j++ {
-      if trainLegs.TrainLegsSlice[i].DepartureStationId == uniqueStation[j] {
-        inside1 = true
-      }
-      if trainLegs.TrainLegsSlice[i].ArrivalStationId == uniqueStation[j] {
-        inside2 = true
-      }
-    }
-    if inside1 == false {
-      uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[i].DepartureStationId)
-    }
-    if inside2 == false {
-      uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[i].ArrivalStationId)
-    }
-  }
-  initialMatrixPrice := make([][]float32, len(uniqueStation))
-  for i, _ := range initialMatrixPrice {
-    initialMatrixPrice[i] = make([]float32, len(uniqueStation))
-    for j, _ := range initialMatrixPrice[i] {
-      initialMatrixPrice[i][j] = maxPrice
-    }
-  }
-  var num float64
-  for i := 0; i < len(trainLegs.TrainLegsSlice); i++ {
-    for j, _ := range uniqueStation {
-      for z, _ := range uniqueStation {
-        num, _ = strconv.ParseFloat(trainLegs.TrainLegsSlice[i].Price, 32)
-        if trainLegs.TrainLegsSlice[i].DepartureStationId == uniqueStation[j] && trainLegs.TrainLegsSlice[i].ArrivalStationId == uniqueStation[z] && float32(num) < initialMatrixPrice[j][z] {
-          initialMatrixPrice[j][z] = float32(num)
-        }
-      }
-    }
-  }
-  for i, _ := range initialMatrixPrice {
-    for j, _ := range initialMatrixPrice {
-      fmt.Printf("%v ", initialMatrixPrice[i][j])
-    }
-    fmt.Println("\n")
-  }
-  for i, _ := range uniqueStation {
-    minPrice[i] = maxPrice
-    visitedPoint[i] = 1
-  }*/
-  fmt.Println(initialMatrixPrice)
+  resultInitialMatrixPrice, initialMatrixPrice, minPrice, visitedPoint, uniqueStation = InitialPrice(trainLegs)
+  fmt.Println(minPrice)
+  fmt.Println(visitedPoint)
+  AllShortestWayDijkstraPrice(resultInitialMatrixPrice, initialMatrixPrice, minPrice, visitedPoint)
+  showSlice(initialMatrixPrice)
+  showSlice(resultInitialMatrixPrice)
   fmt.Println(minPrice)
   fmt.Println(visitedPoint)
   fmt.Println(uniqueStation)
