@@ -61,8 +61,8 @@ func NewIterTime(minTime []MinTime, visitedPoint []int) { // Задает нео
     minTime[i].currentTime.Minutes = 0
     minTime[i].currentTime.Seconds = 0
     minTime[i].sumTime.Hours = intconst
-    minTime[i].sumTime.Minutes = intconst
-    minTime[i].sumTime.Seconds = intconst
+    minTime[i].sumTime.Minutes = 0
+    minTime[i].sumTime.Seconds = 0
     visitedPoint[i] = 1
   }
 }
@@ -73,8 +73,8 @@ func SumTime(add1 Time, add2 Time) Time {
 }
 
 func Difference(subtrahend Time, minuend Time) Time {
-  if subtrahend.Hours > 23 {
-    sub := Time{subtrahend.Hours/24, subtrahend.Minutes, subtrahend.Seconds}
+  if subtrahend.Hours > 23 && minuend.Hours < 24 {
+    sub := Time{subtrahend.Hours%24, subtrahend.Minutes, subtrahend.Seconds}
     return Difference(sub, minuend)
   }
   diff := minuend.Hours*60*60 + minuend.Minutes*60 + minuend.Seconds - subtrahend.Hours*60*60 - subtrahend.Minutes*60 - subtrahend.Seconds
@@ -88,6 +88,12 @@ func Difference(subtrahend Time, minuend Time) Time {
   return Time{0, 0, 0}
 }
 
+func DifferenceAll(subtrahend Time, minuend Time) Time {
+  diff := minuend.Hours*60*60 + minuend.Minutes*60 + minuend.Seconds - subtrahend.Hours*60*60 - subtrahend.Minutes*60 - subtrahend.Seconds
+  return Time{diff/(60*60), (diff - (diff/(60*60))*3600)/60, (diff%3600)%60}
+}
+
+
 /*func NewIterPrice(minPrice []float64, visitedPoint []int) { // Задает необходимые, для дальнейших вычислений, значение массива мин. цен и посещенных станций
   for i, _ := range minPrice {
     minPrice[i] = maxPrice
@@ -95,38 +101,86 @@ func Difference(subtrahend Time, minuend Time) Time {
   }
 }*/
 
-func ShortestWayDijkstraTime(initialMatrixTime [][]TrainLegsTime, minTime []MinTime, visitedPoint []int, stationindex int) { // Находит для станции под индексом stationindex кратчайший путь до всех остальных станций исользуя алгоритм Дейкстры
+func WayTime(DepartureStationId string, ArrivalStationId string, resultInitialMatrixTime [][]MinTime, initialMatrixTime [][]TrainLegsTime, uniqueStation []string, way stringSlice, infoTime [][]Time) {
+  if DepartureStationId == ArrivalStationId {
+    fmt.Printf("You are already in %s", ArrivalStationId)
+    return
+  }
+  var start, finish, next int
+  next = 0
+  for i, _ := range uniqueStation {
+    if uniqueStation[i] == DepartureStationId {
+      start = i
+    } else if uniqueStation[i] == ArrivalStationId {
+      finish = i
+      way[next] = uniqueStation[i]
+      next++
+    }
+  }
+  if (resultInitialMatrixTime[start][finish].sumTime.Hours == intconst) {
+    fmt.Println("No way")
+    return
+  }
+  var timezero = Time{0, 0, 0}
+  fmt.Println(way)
+  for finish != start {
+    for i := 0; i < len(initialMatrixTime); i++ {
+      for j := 0; j < len(initialMatrixTime[i]); j++ {
+        for z := 0; z < len(infoTime); z++ {
+          if (Difference(initialMatrixTime[i][finish].TrainTime[j].DepartureTime, initialMatrixTime[i][finish].TrainTime[j].ArrivalTime) != timezero) && Difference(initialMatrixTime[i][finish].TrainTime[j].DepartureTime, initialMatrixTime[i][finish].TrainTime[j].ArrivalTime) == Difference(resultInitialMatrixTime[start][i].sumTime, resultInitialMatrixTime[start][finish].sumTime) && Difference(resultInitialMatrixTime[start][i].sumTime, resultInitialMatrixTime[start][finish].sumTime) == infoTime[i][z] {
+          infoTime[i][z] = timezero
+          way[next] = uniqueStation[i]
+          next++
+          finish = i
+          }
+        }
+      }
+    }
+  }
+  var s Show
+  s = way
+  s.showSlice()
+  return
+}
+
+func AllShortestWayDijkstraTime(resultInitialMatrixTime [][]MinTime, initialMatrixTime [][]TrainLegsTime, minTime []MinTime, visitedPoint []int, infoTime [][]Time) { // Находит наиболее дешевый проезд между каждой парой станций
+  for i, _ := range minTime {
+    ShortestWayDijkstraTimeInfo(initialMatrixTime, minTime, visitedPoint, infoTime, i)
+    for j, _ := range minTime {
+       resultInitialMatrixTime[i][j] = minTime[j]
+    }
+    NewIterTime(minTime, visitedPoint)
+  }
+}
+
+func ShortestWayDijkstraTimeInfo(initialMatrixTime [][]TrainLegsTime, minTime []MinTime, visitedPoint []int, infoTime [][]Time, stationindex int) { // Находит для станции под индексом stationindex кратчайший путь до всех остальных станций исользуя алгоритм Дейкстры
   minTime[stationindex].sumTime.Hours = 0
-  minTime[stationindex].sumTime.Minutes = 0
-  minTime[stationindex].sumTime.Seconds = 0
   var minIndex int
   var min MinTime
-  var temp Time
-  var per Time
+  var temp, per, str1, str2 Time
   for minIndex < 10000 {
     minIndex = 10000
-    min.sumTime.Hours = intconst
-    min.sumTime.Minutes = intconst
-    min.sumTime.Seconds = intconst
     for i, _ := range minTime {
       if visitedPoint[i] == 1 && minTime[i].sumTime.Hours < intconst {
         min = minTime[i]
         minIndex = i;
       }
     }
+    str1 = Time{(min.currentTime.Hours/24)*24, 0, 0}
+    str2 = DifferenceAll(str1, min.currentTime)
     if minIndex != 10000 {
-      for i, _ := range initialMatrixTime {
-        for j := 0; j < len(initialMatrixTime[minIndex][i].TrainTime); j++ {
-          temp = SumTime(Difference(min.currentTime, initialMatrixTime[minIndex][i].TrainTime[j].DepartureTime), Difference(initialMatrixTim 
-
-
-
-
-            e[minIndex][i].TrainTime[j].DepartureTime, initialMatrixTime[minIndex][i].TrainTime[j].ArrivalTime))
-          per = Difference(temp, minTime[i].sumTime)
-          if per.Hours > 0 || per.Hours > 0 || per.Hours > 0 {
-            minTime[i].currentTime = SumTime(temp, minTime[i].currentTime)
+      for i, _ := range initialMatrixTime[minIndex] {
+        if i == minIndex {continue}
+        for j := 1; j < len(initialMatrixTime[minIndex][i].TrainTime); j++ {
+          temp = SumTime(Difference(str2, initialMatrixTime[minIndex][i].TrainTime[j].DepartureTime), Difference(initialMatrixTime[minIndex][i].TrainTime[j].DepartureTime, initialMatrixTime[minIndex][i].TrainTime[j].ArrivalTime))
+          str1 = SumTime(min.currentTime, temp)
+          per = DifferenceAll(str1, minTime[i].sumTime)
+          if per.Hours > 0 || per.Minutes > 0 || per. Seconds > 0 {
+            infoTime[stationindex] = append(infoTime[stationindex], temp)
+            minTime[i].sumTime = str1
+            minTime[i].currentTime = str1
           }
+          str1 = Time{(min.currentTime.Hours/24)*24, 0, 0}
         }
       }
       visitedPoint[minIndex] = 0
@@ -134,7 +188,48 @@ func ShortestWayDijkstraTime(initialMatrixTime [][]TrainLegsTime, minTime []MinT
   }
 }
 
-func InitialTime(trainLegs TrainLegs) ([][]MinTime, [][]TrainLegsTime, []MinTime, []int, []string) { // На основе имеющейся информации создает и возвращает матрицы связей, мин. цены, пройденных пунктов, и уникальных имен пунктов
+func ShortestWayDijkstraTime(initialMatrixTime [][]TrainLegsTime, minTime []MinTime, visitedPoint []int, stationindex int) { // Находит для станции под индексом stationindex кратчайший путь до всех остальных станций исользуя алгоритм Дейкстры
+  minTime[stationindex].sumTime.Hours = 0
+  var minIndex int
+  var min MinTime
+  var temp, per, str1, str2 Time
+  fmt.Println(minTime)
+  for minIndex < 10000 {
+    minIndex = 10000
+    for i, _ := range minTime {
+      if visitedPoint[i] == 1 && minTime[i].sumTime.Hours < intconst {
+        min = minTime[i]
+        minIndex = i;
+      }
+    }
+    str1 = Time{(min.currentTime.Hours/24)*24, 0, 0}
+    str2 = DifferenceAll(str1, min.currentTime)
+    if minIndex != 10000 {
+      for i, _ := range initialMatrixTime[minIndex] {
+        if i == minIndex {continue}
+        for j := 1; j < len(initialMatrixTime[minIndex][i].TrainTime); j++ {
+          fmt.Println("\n", str1, str2, minIndex, i, j)
+          fmt.Println(minTime)
+          fmt.Println(initialMatrixTime[minIndex][i].TrainTime[j].DepartureTime, initialMatrixTime[minIndex][i].TrainTime[j].ArrivalTime)
+          temp = SumTime(Difference(str2, initialMatrixTime[minIndex][i].TrainTime[j].DepartureTime), Difference(initialMatrixTime[minIndex][i].TrainTime[j].DepartureTime, initialMatrixTime[minIndex][i].TrainTime[j].ArrivalTime))
+          str1 = SumTime(min.currentTime, temp)
+          fmt.Println(minTime[i].sumTime)
+          per = DifferenceAll(str1, minTime[i].sumTime)
+          fmt.Println(str1, temp, per, minTime[i].sumTime)
+          if per.Hours > 0 || per.Minutes > 0 || per. Seconds > 0 {
+            minTime[i].sumTime = str1
+            minTime[i].currentTime = str1
+            fmt.Println(minTime[i].sumTime, minTime[i].currentTime)
+          }
+          str1 = Time{(min.currentTime.Hours/24)*24, 0, 0}
+        }
+      }
+      visitedPoint[minIndex] = 0
+    }
+  }
+}
+
+func InitialTime(trainLegs TrainLegs) ([][]MinTime, [][]TrainLegsTime, []MinTime, []int, []string, [][]Time) { // На основе имеющейся информации создает и возвращает матрицы связей, мин. цены, пройденных пунктов, и уникальных имен пунктов
   uniqueStation := make([]string, 0)
   uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[0].DepartureStationId)
   uniqueStation = append(uniqueStation, trainLegs.TrainLegsSlice[0].ArrivalStationId)
@@ -165,9 +260,11 @@ func InitialTime(trainLegs TrainLegs) ([][]MinTime, [][]TrainLegsTime, []MinTime
   }
   initialMatrixTime := make([][]TrainLegsTime, len(uniqueStation))
   resultInitialMatrixTime := make([][]MinTime, len(uniqueStation))
+  infoTime := make([][]Time, len(uniqueStation))
   for i, _ := range initialMatrixTime {
     initialMatrixTime[i] = make([]TrainLegsTime, len(uniqueStation))
     resultInitialMatrixTime[i] = make([]MinTime, len(uniqueStation))
+    infoTime[i] = make([]Time, 0)
     for j, _ := range initialMatrixTime[i] {
       resultInitialMatrixTime[i][j] = MinTime{Time{0, 0, 0}, Time{0, 0, 0}}
     }
@@ -209,7 +306,7 @@ func InitialTime(trainLegs TrainLegs) ([][]MinTime, [][]TrainLegsTime, []MinTime
   minTime := make([]MinTime, len(uniqueStation))
   visitedPoint := make([]int, len(uniqueStation))
   NewIterTime(minTime, visitedPoint)
-  return resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, uniqueStation
+  return resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, uniqueStation, infoTime
 }
 
 /*func WayPrice(DepartureStationId string, ArrivalStationId string, resultInitialMatrixPrice float64Slice, initialMatrixPrice TrainLegPriceSlice, uniqueStation []string, way stringSlice) {
@@ -446,21 +543,26 @@ func main() {
   var initialMatrixTime [][]TrainLegsTime
   var resultInitialMatrixTime [][]MinTime
   var minTime []MinTime
-  resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, uniqueStation = InitialTime(trainLegs)
+  var infoTime [][]Time
+  resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, uniqueStation, infoTime = InitialTime(trainLegs)
   for i, _ := range initialMatrixTime {
     for j, _ := range initialMatrixTime {
         fmt.Println(" ", initialMatrixTime[i][j])
     }
     fmt.Println("\n")
   }
-  fmt.Println(uniqueStation)
-  t := Difference(initialMatrixTime[1][2].TrainTime[0].DepartureTime, initialMatrixTime[1][2].TrainTime[0].ArrivalTime)
-  fmt.Println("\n", t, initialMatrixTime[1][2].TrainTime[0].DepartureTime, initialMatrixTime[1][2].TrainTime[0].ArrivalTime )
-  ShortestWayDijkstraTime(initialMatrixTime, minTime, visitedPoint, 0)
+  fmt.Println(uniqueStation, minTime)
+  ShortestWayDijkstraTimeInfo(initialMatrixTime, minTime, visitedPoint, infoTime, 0)
+  fmt.Println(minTime)
+  fmt.Println(infoTime)
+  AllShortestWayDijkstraTime(resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, infoTime)
   for i, _ := range resultInitialMatrixTime {
     for j, _ := range resultInitialMatrixTime {
       fmt.Println(resultInitialMatrixTime[i][j], i, j)
     }
+    fmt.Println("\n")
   }
+  way := make(stringSlice, len(uniqueStation))
+  WayTime("Kyiv", "Melitopol", resultInitialMatrixTime, initialMatrixTime, uniqueStation, way, infoTime)
 
 }
