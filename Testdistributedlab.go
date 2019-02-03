@@ -395,7 +395,6 @@ func ParseXML(fileName string) TrainLegs {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("Successfully Opened %s\n", fileName)
 	defer xmlFile.Close()
   byteValue, err := ioutil.ReadAll(xmlFile)
   if err != nil {
@@ -460,6 +459,11 @@ type TrainLeg struct {
 } // Хранит элементы, в которых записана информация о переездах
 
 func main() {
+  var station1, station2 string
+  fmt.Print("Введите начальную станцию: ")
+  fmt.Fscan(os.Stdin, &station1)
+  fmt.Print("Введите конечную станцию: ")
+  fmt.Fscan(os.Stdin, &station2)
   var trainLegs TrainLegs // Структура, в которую считывается информация из XML файла
   var fileName string = "data.xml" // имя файла
   trainLegs = ParseXML(fileName)
@@ -472,7 +476,7 @@ func main() {
   resultInitialMatrixPrice, initialMatrixPrice, minPrice, visitedPoint, uniqueStation = InitialPrice(trainLegs)
   AllShortestWayDijkstraPrice(resultInitialMatrixPrice, initialMatrixPrice, minPrice, visitedPoint)
   way1 := make([]Way, len(uniqueStation)) // Хранит инверсированный маршрут
-  WayPrice("1937", "1909", resultInitialMatrixPrice, initialMatrixPrice, uniqueStation, way1)
+  WayPrice(station1, station2, resultInitialMatrixPrice, initialMatrixPrice, uniqueStation, way1)
 
   //Test Time
   var initialMatrixTime [][]TrainLegsTime // Хранит информацию о перездах между каждой парой станций, элемент initialMatrixPrice[i][j] хранит информацию о переезде из и i в j(для времени)
@@ -482,5 +486,5 @@ func main() {
   resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, uniqueStation, infoTime = InitialTime(trainLegs)
   AllShortestWayDijkstraTime(resultInitialMatrixTime, initialMatrixTime, minTime, visitedPoint, infoTime, uniqueStation)
   way2 := make([]Way, len(uniqueStation)) // аналогично
-  WayTime("1937", "1909", resultInitialMatrixTime, initialMatrixTime, uniqueStation, way2, infoTime)
+  WayTime(station1, station2, resultInitialMatrixTime, initialMatrixTime, uniqueStation, way2, infoTime)
 }
