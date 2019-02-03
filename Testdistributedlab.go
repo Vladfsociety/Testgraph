@@ -124,7 +124,7 @@ func WayTime(DepartureStationId string, ArrivalStationId string, resultInitialMa
     }
   }
   showSlice(way)
-  fmt.Printf("Time: Hours:%v Minutes:%v, Seconds:%v ", resultInitialMatrixTime[start][print].sumTime.Hours, resultInitialMatrixTime[start][print].sumTime.Minutes, resultInitialMatrixTime[start][print].sumTime.Seconds)
+  fmt.Printf("Time: Hours:%v, Minutes:%v, Seconds:%v ", resultInitialMatrixTime[start][print].sumTime.Hours, resultInitialMatrixTime[start][print].sumTime.Minutes, resultInitialMatrixTime[start][print].sumTime.Seconds)
   return
 } // Восстанавливает кратчайший(по времени) путь с помощью матриц resultInitialMatrixTime, initialMatrixTime и выводит его, а также время перезда
 
