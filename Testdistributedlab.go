@@ -7,6 +7,7 @@ import (
 	"os"
   "strconv"
   "strings"
+  "log"
 )
 
 const (
@@ -393,17 +394,17 @@ func InitialPrice(trainLegs TrainLegs) ([][]float64, [][]TrainLegPrice, []float6
 func ParseXML(fileName string) TrainLegs {
   xmlFile, err := os.Open(fileName)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	defer xmlFile.Close()
   byteValue, err := ioutil.ReadAll(xmlFile)
   if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
   var trainLegs TrainLegs
   err = xml.Unmarshal(byteValue, &trainLegs)
   if err != nil {
-    fmt.Printf("error: %trainLegs", err)
+    log.Fatal(err)
   }
   return trainLegs
 } // Считывает название файла и возвращает структуру, в которой записана необходимая информация из XML файла
