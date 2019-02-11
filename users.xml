@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<TrainLegs>
+
+  <TrainLeg TrainId = "1" DepartureStationId = "Kyiv"  ArrivalStationId = "Kharkiv" Price = "19.25" ArrivalTimeString = "00:50:00" DepartureTimeString = "20:00:00"></TrainLeg> 
+
+  <TrainLeg TrainId = "2" DepartureStationId = "Kharkiv"  ArrivalStationId = "Kyiv" Price = "15.0" ArrivalTimeString = "00:00:00" DepartureTimeString = "21:00:00"></TrainLeg>
+
+  <TrainLeg TrainId = "3" DepartureStationId = "Kharkiv"  ArrivalStationId = "Melitopol" Price = "15.0" ArrivalTimeString = "10:00:00" DepartureTimeString = "11:00:00"></TrainLeg>
+
+</TrainLegs>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<TrainLegs>
+
+  <TrainLeg TrainId = "1" DepartureStationId = "London" ArrivalStationId = "Paris"  Price = "65.0" ArrivalTimeString = "14:30:00" DepartureTimeString = "10:00:00"></TrainLeg> 
+
+  <TrainLeg TrainId = "1" DepartureStationId = "Paris"  ArrivalStationId = "London" Price = "50.0" ArrivalTimeString = "03:15:00" DepartureTimeString = "23:50:00"></TrainLeg>
+
+  <TrainLeg TrainId = "2" DepartureStationId = "Paris"  ArrivalStationId = "Madrid" Price = "70.0" ArrivalTimeString = "11:45:00" DepartureTimeString = "07:00:00"></TrainLeg>
+
+  <TrainLeg TrainId = "2" DepartureStationId = "Madrid" ArrivalStationId = "Paris"  Price = "75.0" ArrivalTimeString = "16:40:00" DepartureTimeString = "13:00:00"></TrainLeg> 
+
+  <TrainLeg TrainId = "3" DepartureStationId = "Paris"  ArrivalStationId = "Rome" Price = "73.0" ArrivalTimeString = "12:35:00" DepartureTimeString = "09:00:00"></TrainLeg>
+
+  <TrainLeg TrainId = "3" DepartureStationId = "Rome" ArrivalStationId = "Paris"  Price = "57.35" ArrivalTimeString = "12:05:00" DepartureTimeString = "07:00:00"></TrainLeg>
+
+  <TrainLeg TrainId = "4" DepartureStationId = "Paris"  ArrivalStationId = "Berlin"  Price = "55.0" ArrivalTimeString = "17:30:00" DepartureTimeString = "15:20:00"></TrainLeg> 
+
+  <TrainLeg TrainId = "5" DepartureStationId = "Berlin"  ArrivalStationId = "Sofia" Price = "280.0" ArrivalTimeString = "16:55:00" DepartureTimeString = "12:45:00"></TrainLeg>
+
+  <TrainLeg TrainId = "6" DepartureStationId = "Berlin"  ArrivalStationId = "Kyiv" Price = "120.0" ArrivalTimeString = "10:30:00" DepartureTimeString = "22:10:00"></TrainLeg>
+
+  <TrainLeg TrainId = "6" DepartureStationId = "Kyiv" ArrivalStationId = "Berlin"  Price = "130.0" ArrivalTimeString = "18:27:37" DepartureTimeString = "07:55:35"></TrainLeg> 
+
+  <TrainLeg TrainId = "7" DepartureStationId = "Kyiv" ArrivalStationId = "Sofia" Price = "110.0" ArrivalTimeString = "07:47:00" DepartureTimeString = "22:35:00"></TrainLeg>
+
+  <TrainLeg TrainId = "7" DepartureStationId = "Kyiv" ArrivalStationId = "Sofia" Price = "115.0" ArrivalTimeString = "10:35:00" DepartureTimeString = "11:55:00"></TrainLeg>
+
+  <TrainLeg TrainId = "8" DepartureStationId = "Sofia" ArrivalStationId = "Kyiv" Price = "105.0" ArrivalTimeString = "23:30:00" DepartureTimeString = "17:40:00"></TrainLeg>
+
+  <TrainLeg TrainId = "9" DepartureStationId = "Sofia" ArrivalStationId = "Rome" Price = "67.0" ArrivalTimeString = "03:00:00" DepartureTimeString = "00:00:00"></TrainLeg>
+
+  <TrainLeg TrainId = "10" DepartureStationId = "Rome" ArrivalStationId = "Madrid" Price = "35.75" ArrivalTimeString = "10:45:00" DepartureTimeString = "07:13:37"></TrainLeg> 
+
+  <TrainLeg TrainId = "7" DepartureStationId = "Kyiv" ArrivalStationId = "Sofia" Price = "140.0" ArrivalTimeString = "12:35:00" DepartureTimeString = "10:35:00"></TrainLeg>
+
+</TrainLegs>
